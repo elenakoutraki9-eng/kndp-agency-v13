@@ -1,23 +1,24 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, X, ArrowUpRight, ChevronDown } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { scrollToId } from "@/lib/scroll";
 
-const links = [
-  { id: "#hero", label: "Αρχική", testid: "nav-link-home" },
+// Sections of the home page, shown as a submenu under "Αρχική".
+const homeSections = [
   { id: "#portfolio", label: "Έργα", testid: "nav-link-portfolio" },
   { id: "#services", label: "Υπηρεσίες", testid: "nav-link-services" },
-  { route: "/video", label: "Βίντεο", testid: "nav-link-video" },
   { id: "#contact", label: "Επικοινωνία", testid: "nav-link-contact" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("#hero");
+  const [homeMenu, setHomeMenu] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const onHome = location.pathname === "/";
+  const onVideo = location.pathname === "/video";
 
   useEffect(() => {
     if (!onHome) return;
@@ -28,30 +29,30 @@ export default function Navbar() {
         }),
       { rootMargin: "-35% 0px -55% 0px" }
     );
-    links.forEach((l) => {
-      if (!l.id) return;
-      const el = document.querySelector(l.id);
+    ["#hero", ...homeSections.map((s) => s.id)].forEach((id) => {
+      const el = document.querySelector(id);
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
   }, [onHome]);
 
-  const go = (link) => {
+  // Scroll to a section on the home page (navigating home first if needed).
+  const goSection = (id) => {
     setOpen(false);
-    if (link.route) {
-      navigate(link.route);
-      return;
-    }
+    setHomeMenu(false);
     if (!onHome) {
-      navigate("/", { state: { scrollTo: link.id } });
+      navigate("/", { state: { scrollTo: id } });
       return;
     }
-    setActive(link.id);
-    scrollToId(link.id);
+    setActive(id);
+    scrollToId(id);
   };
 
-  const isActive = (l) =>
-    l.route ? location.pathname === l.route : onHome && active === l.id;
+  const goVideo = () => {
+    setOpen(false);
+    setHomeMenu(false);
+    navigate("/video");
+  };
 
   return (
     <header
@@ -60,7 +61,7 @@ export default function Navbar() {
     >
       <div className="mx-auto max-w-7xl px-6 md:px-10 h-20 flex items-center justify-between">
         <button
-          onClick={() => go({ id: "#hero" })}
+          onClick={() => goSection("#hero")}
           data-testid="nav-logo"
           className="font-display font-bold text-2xl tracking-tighter flex items-center gap-1"
         >
@@ -69,29 +70,87 @@ export default function Navbar() {
         </button>
 
         <nav className="hidden md:flex items-center gap-8">
-          {links.map((l) => (
+          {/* Αρχική — main option with a submenu of home sections */}
+          <div
+            className="relative"
+            onMouseEnter={() => setHomeMenu(true)}
+            onMouseLeave={() => setHomeMenu(false)}
+          >
             <button
-              key={l.id || l.route}
-              onClick={() => go(l)}
-              data-testid={l.testid}
-              className={`nav-underline relative text-sm font-semibold transition-colors duration-300 hover:text-ink ${
-                isActive(l) ? "text-ink" : "text-ink/50"
+              onClick={() => goSection("#hero")}
+              data-testid="nav-link-home"
+              className={`nav-underline relative inline-flex items-center gap-1 text-sm font-semibold transition-colors duration-300 hover:text-ink ${
+                onHome ? "text-ink" : "text-ink/50"
               }`}
             >
-              {l.label}
-              {isActive(l) && (
+              Αρχική
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition-transform duration-300 ${homeMenu ? "rotate-180" : ""}`}
+              />
+              {onHome && (
                 <motion.span
                   layoutId="nav-dot"
                   className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-baby"
                 />
               )}
             </button>
-          ))}
+
+            <AnimatePresence>
+              {homeMenu && (
+                <motion.div
+                  data-testid="nav-home-submenu"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute left-1/2 top-full -translate-x-1/2 pt-4"
+                >
+                  <div className="min-w-[200px] rounded-2xl border border-ink/5 bg-white/95 backdrop-blur-md p-2 shadow-xl shadow-ink/5">
+                    <p className="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-ink/35">
+                      Ενότητες
+                    </p>
+                    {homeSections.map((s) => (
+                      <button
+                        key={s.id}
+                        onClick={() => goSection(s.id)}
+                        data-testid={s.testid}
+                        className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors duration-200 hover:bg-baby-light ${
+                          onHome && active === s.id ? "text-baby-dark" : "text-ink/70 hover:text-ink"
+                        }`}
+                      >
+                        {s.label}
+                        {onHome && active === s.id && (
+                          <span className="h-1.5 w-1.5 rounded-full bg-baby" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Βίντεο — second main option */}
+          <button
+            onClick={goVideo}
+            data-testid="nav-link-video"
+            className={`nav-underline relative text-sm font-semibold transition-colors duration-300 hover:text-ink ${
+              onVideo ? "text-ink" : "text-ink/50"
+            }`}
+          >
+            Βίντεο
+            {onVideo && (
+              <motion.span
+                layoutId="nav-dot"
+                className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-baby"
+              />
+            )}
+          </button>
         </nav>
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => go({ id: "#contact" })}
+            onClick={() => goSection("#contact")}
             data-testid="nav-cta-button"
             className="btn-shine hidden md:inline-flex items-center gap-1.5 rounded-full bg-baby px-5 py-2.5 text-sm font-bold text-ink transition-[transform,background-color] duration-300 hover:scale-105 hover:bg-baby-dark"
           >
@@ -120,26 +179,56 @@ export default function Navbar() {
             className="md:hidden absolute left-0 right-0 top-full bg-white/95 backdrop-blur-md border-b border-ink/5 shadow-xl"
           >
             <div className="px-6 py-6 flex flex-col gap-1">
-              {links.map((l, i) => (
-                <motion.div
-                  key={l.id || l.route}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.05 * i }}
+              {/* Αρχική + its sections */}
+              <motion.div
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 }}
+              >
+                <button
+                  onClick={() => goSection("#hero")}
+                  data-testid="mobile-nav-link-home"
+                  className={`block py-3 font-display text-2xl font-medium tracking-tight text-left w-full ${
+                    onHome ? "text-baby-dark" : "text-ink"
+                  }`}
                 >
-                  <button
-                    onClick={() => go(l)}
-                    data-testid={`mobile-${l.testid}`}
-                    className={`block py-3 font-display text-2xl font-medium tracking-tight text-left w-full ${
-                      isActive(l) ? "text-baby-dark" : "text-ink"
-                    }`}
-                  >
-                    {l.label}
-                  </button>
-                </motion.div>
-              ))}
+                  Αρχική
+                </button>
+                <div className="ml-1 mb-2 flex flex-col border-l border-ink/10 pl-4">
+                  {homeSections.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => goSection(s.id)}
+                      data-testid={`mobile-${s.testid}`}
+                      className={`py-2 text-left text-base font-semibold ${
+                        onHome && active === s.id ? "text-baby-dark" : "text-ink/60"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Βίντεο */}
+              <motion.div
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.12 }}
+              >
+                <button
+                  onClick={goVideo}
+                  data-testid="mobile-nav-link-video"
+                  className={`block py-3 font-display text-2xl font-medium tracking-tight text-left w-full ${
+                    onVideo ? "text-baby-dark" : "text-ink"
+                  }`}
+                >
+                  Βίντεο
+                </button>
+              </motion.div>
+
               <button
-                onClick={() => go({ id: "#contact" })}
+                onClick={() => goSection("#contact")}
                 data-testid="mobile-nav-cta-button"
                 className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-baby px-6 py-3.5 font-bold text-ink"
               >
