@@ -10,7 +10,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Base URL from frontend/.env
-BASE_URL = "https://opent-test.preview.emergentagent.com/api"
+BASE_URL = "https://repo-launcher-127.preview.emergentagent.com/api"
 ADMIN_PASSWORD = "180406kon"
 
 # Test results tracking
