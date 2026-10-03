@@ -245,32 +245,12 @@ export default function VideoPage() {
                     </div>
                   </ParallaxY>
 
-                  <motion.div
-                    animate={{ y: [0, -14, 0] }}
-                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute -bottom-8 -left-6 hidden sm:block w-36 rotate-[-6deg]"
-                  >
-                    <div className="rounded-[2rem] border-[6px] border-ink bg-ink shadow-2xl overflow-hidden">
-                      <div className="relative aspect-[9/16]">
-                        <LoopVideo
-                          src={V.app}
-                          poster={POSTER.abstract1}
-                          className="absolute inset-0 h-full w-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  <motion.div
-                    animate={{ y: [0, -9, 0] }}
-                    transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute -top-5 -right-4 rounded-full bg-white shadow-xl border border-ink/5 px-4 py-2 flex items-center gap-2"
-                  >
+                  <div className="absolute -top-5 -right-4 rounded-full bg-white shadow-xl border border-ink/5 px-4 py-2 flex items-center gap-2">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-baby text-ink">
                       <Play className="h-3.5 w-3.5 fill-ink" />
                     </span>
                     <span className="text-xs font-bold">Showreel</span>
-                  </motion.div>
+                  </div>
                 </div>
               </Reveal>
             </div>
