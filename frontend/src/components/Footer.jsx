@@ -1,5 +1,5 @@
 import { ArrowUpRight, Heart } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Magnetic } from "@/components/Reveal";
 import { scrollToId } from "@/lib/scroll";
 
@@ -7,10 +7,23 @@ const nav = [
   { id: "#hero", label: "Αρχική", slug: "home" },
   { id: "#services", label: "Υπηρεσίες", slug: "services" },
   { id: "#portfolio", label: "Έργα", slug: "portfolio" },
+  { route: "/video", label: "Βίντεο", slug: "video" },
   { id: "#contact", label: "Επικοινωνία", slug: "contact" },
 ];
 
 export default function Footer() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const onHome = location.pathname === "/";
+
+  const goSection = (id) => {
+    if (!onHome) {
+      navigate("/", { state: { scrollTo: id } });
+      return;
+    }
+    scrollToId(id);
+  };
+
   return (
     <footer data-testid="site-footer" className="relative bg-ink text-white overflow-hidden grain">
       <div className="mx-auto max-w-7xl px-6 md:px-10 pt-24 md:pt-32 pb-10">
@@ -21,7 +34,7 @@ export default function Footer() {
             </p>
             <Magnetic strength={0.15}>
               <button
-                onClick={() => scrollToId("#contact")}
+                onClick={() => goSection("#contact")}
                 data-testid="footer-cta-link"
                 className="group inline-flex items-center gap-3 font-display text-4xl md:text-5xl font-medium tracking-tighter"
               >
@@ -43,14 +56,24 @@ export default function Footer() {
             <p className="text-xs uppercase tracking-[0.25em] font-semibold text-white/50 mb-6">Μενού</p>
             <ul className="space-y-3">
               {nav.map((n) => (
-                <li key={n.id}>
-                  <button
-                    onClick={() => scrollToId(n.id)}
-                    data-testid={`footer-link-${n.slug}`}
-                    className="text-white/70 hover:text-baby transition-colors duration-300"
-                  >
-                    {n.label}
-                  </button>
+                <li key={n.slug}>
+                  {n.route ? (
+                    <Link
+                      to={n.route}
+                      data-testid={`footer-link-${n.slug}`}
+                      className="text-white/70 hover:text-baby transition-colors duration-300"
+                    >
+                      {n.label}
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => goSection(n.id)}
+                      data-testid={`footer-link-${n.slug}`}
+                      className="text-white/70 hover:text-baby transition-colors duration-300"
+                    >
+                      {n.label}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

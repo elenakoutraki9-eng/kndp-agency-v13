@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import "@/App.css";
 import Lenis from "lenis";
+import { useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -16,11 +17,21 @@ import PortfolioSection from "@/sections/PortfolioSection";
 import CompaniesSection from "@/sections/CompaniesSection";
 import FaqSection from "@/sections/FaqSection";
 import ContactSection from "@/sections/ContactSection";
-import { setLenis } from "@/lib/scroll";
+import { setLenis, scrollToId } from "@/lib/scroll";
 import useIsMobile from "@/hooks/useIsMobile";
 
 export default function Landing() {
   const isMobile = useIsMobile();
+  const location = useLocation();
+
+  useEffect(() => {
+    // If we arrived from another route asking to scroll to a section
+    // (e.g. clicked "Επικοινωνία" on /video), scroll there once mounted.
+    const target = location.state?.scrollTo || window.location.hash;
+    if (!target) return;
+    const t = setTimeout(() => scrollToId(target), 500);
+    return () => clearTimeout(t);
+  }, [location.state]);
 
   useEffect(() => {
     // On mobile, use native (instant) scrolling — no smooth-scroll inertia.

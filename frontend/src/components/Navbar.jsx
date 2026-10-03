@@ -1,20 +1,26 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ArrowUpRight } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { scrollToId } from "@/lib/scroll";
 
 const links = [
   { id: "#hero", label: "Αρχική", testid: "nav-link-home" },
   { id: "#portfolio", label: "Έργα", testid: "nav-link-portfolio" },
   { id: "#services", label: "Υπηρεσίες", testid: "nav-link-services" },
+  { route: "/video", label: "Βίντεο", testid: "nav-link-video" },
   { id: "#contact", label: "Επικοινωνία", testid: "nav-link-contact" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("#hero");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const onHome = location.pathname === "/";
 
   useEffect(() => {
+    if (!onHome) return;
     const observer = new IntersectionObserver(
       (entries) =>
         entries.forEach((e) => {
@@ -23,17 +29,29 @@ export default function Navbar() {
       { rootMargin: "-35% 0px -55% 0px" }
     );
     links.forEach((l) => {
+      if (!l.id) return;
       const el = document.querySelector(l.id);
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, []);
+  }, [onHome]);
 
-  const go = (id) => {
+  const go = (link) => {
     setOpen(false);
-    setActive(id);
-    scrollToId(id);
+    if (link.route) {
+      navigate(link.route);
+      return;
+    }
+    if (!onHome) {
+      navigate("/", { state: { scrollTo: link.id } });
+      return;
+    }
+    setActive(link.id);
+    scrollToId(link.id);
   };
+
+  const isActive = (l) =>
+    l.route ? location.pathname === l.route : onHome && active === l.id;
 
   return (
     <header
@@ -42,7 +60,7 @@ export default function Navbar() {
     >
       <div className="mx-auto max-w-7xl px-6 md:px-10 h-20 flex items-center justify-between">
         <button
-          onClick={() => go("#hero")}
+          onClick={() => go({ id: "#hero" })}
           data-testid="nav-logo"
           className="font-display font-bold text-2xl tracking-tighter flex items-center gap-1"
         >
@@ -53,15 +71,15 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center gap-8">
           {links.map((l) => (
             <button
-              key={l.id}
-              onClick={() => go(l.id)}
+              key={l.id || l.route}
+              onClick={() => go(l)}
               data-testid={l.testid}
               className={`nav-underline relative text-sm font-semibold transition-colors duration-300 hover:text-ink ${
-                active === l.id ? "text-ink" : "text-ink/50"
+                isActive(l) ? "text-ink" : "text-ink/50"
               }`}
             >
               {l.label}
-              {active === l.id && (
+              {isActive(l) && (
                 <motion.span
                   layoutId="nav-dot"
                   className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-baby"
@@ -73,7 +91,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => go("#contact")}
+            onClick={() => go({ id: "#contact" })}
             data-testid="nav-cta-button"
             className="btn-shine hidden md:inline-flex items-center gap-1.5 rounded-full bg-baby px-5 py-2.5 text-sm font-bold text-ink transition-[transform,background-color] duration-300 hover:scale-105 hover:bg-baby-dark"
           >
@@ -104,16 +122,16 @@ export default function Navbar() {
             <div className="px-6 py-6 flex flex-col gap-1">
               {links.map((l, i) => (
                 <motion.div
-                  key={l.id}
+                  key={l.id || l.route}
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.05 * i }}
                 >
                   <button
-                    onClick={() => go(l.id)}
+                    onClick={() => go(l)}
                     data-testid={`mobile-${l.testid}`}
                     className={`block py-3 font-display text-2xl font-medium tracking-tight text-left w-full ${
-                      active === l.id ? "text-baby-dark" : "text-ink"
+                      isActive(l) ? "text-baby-dark" : "text-ink"
                     }`}
                   >
                     {l.label}
@@ -121,7 +139,7 @@ export default function Navbar() {
                 </motion.div>
               ))}
               <button
-                onClick={() => go("#contact")}
+                onClick={() => go({ id: "#contact" })}
                 data-testid="mobile-nav-cta-button"
                 className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-baby px-6 py-3.5 font-bold text-ink"
               >
