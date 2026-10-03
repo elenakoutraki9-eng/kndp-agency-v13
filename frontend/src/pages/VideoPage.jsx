@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import "@/App.css";
 import Lenis from "lenis";
 import { Toaster } from "sonner";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Play,
@@ -22,7 +22,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Cursor from "@/components/Cursor";
 import ScrollProgress from "@/components/ScrollProgress";
-import { WordMask, Reveal, Kicker, Magnetic } from "@/components/Reveal";
+import { WordMask, Reveal, Kicker, Magnetic, ParallaxY } from "@/components/Reveal";
 import { setLenis } from "@/lib/scroll";
 import useIsMobile from "@/hooks/useIsMobile";
 
@@ -65,6 +65,30 @@ function LoopVideo({ src, poster, className = "" }) {
       autoPlay
       preload="metadata"
     />
+  );
+}
+
+/* Scroll-linked "section to section" transition: each section comes
+   forward (fades in + scales up) as it enters the viewport and gently
+   recedes (dims + scales down) as it leaves — the site's panel feel. */
+function ScrollSection({ children, className = "", dim = true, id }) {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const s = useSpring(scrollYProgress, { stiffness: 140, damping: 32, mass: 0.4 });
+  const opacity = useTransform(s, [0, 0.16, 0.85, 1], [0.2, 1, 1, dim ? 0.45 : 1]);
+  const scale = useTransform(s, [0, 0.16, 0.85, 1], [0.94, 1, 1, dim ? 0.97 : 1]);
+  return (
+    <motion.section
+      id={id}
+      ref={ref}
+      style={{ opacity, scale }}
+      className={`will-change-[opacity,transform] ${className}`}
+    >
+      {children}
+    </motion.section>
   );
 }
 
@@ -201,25 +225,31 @@ export default function VideoPage() {
             <div className="lg:col-span-6">
               <Reveal delay={0.2} y={40}>
                 <div className="relative">
-                  <div className="relative rounded-2xl border border-ink/10 bg-white shadow-2xl shadow-baby/20 overflow-hidden">
-                    <div className="flex items-center gap-1.5 border-b border-ink/5 px-4 py-3">
-                      <span className="h-3 w-3 rounded-full bg-[#FF5F57]" />
-                      <span className="h-3 w-3 rounded-full bg-[#FEBC2E]" />
-                      <span className="h-3 w-3 rounded-full bg-[#28C840]" />
-                      <span className="ml-3 truncate rounded-md bg-mist px-3 py-1 text-xs text-ink/40">
-                        kndp.studio/showreel
-                      </span>
+                  <ParallaxY distance={26}>
+                    <div className="relative rounded-2xl border border-ink/10 bg-white shadow-2xl shadow-baby/20 overflow-hidden">
+                      <div className="flex items-center gap-1.5 border-b border-ink/5 px-4 py-3">
+                        <span className="h-3 w-3 rounded-full bg-[#FF5F57]" />
+                        <span className="h-3 w-3 rounded-full bg-[#FEBC2E]" />
+                        <span className="h-3 w-3 rounded-full bg-[#28C840]" />
+                        <span className="ml-3 truncate rounded-md bg-mist px-3 py-1 text-xs text-ink/40">
+                          kndp.studio/showreel
+                        </span>
+                      </div>
+                      <div className="relative aspect-video bg-ink">
+                        <LoopVideo
+                          src={V.hero}
+                          poster={POSTER.hero}
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                      </div>
                     </div>
-                    <div className="relative aspect-video bg-ink">
-                      <LoopVideo
-                        src={V.hero}
-                        poster={POSTER.hero}
-                        className="absolute inset-0 h-full w-full object-cover"
-                      />
-                    </div>
-                  </div>
+                  </ParallaxY>
 
-                  <div className="absolute -bottom-8 -left-6 hidden sm:block w-36 rotate-[-6deg]">
+                  <motion.div
+                    animate={{ y: [0, -14, 0] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -bottom-8 -left-6 hidden sm:block w-36 rotate-[-6deg]"
+                  >
                     <div className="rounded-[2rem] border-[6px] border-ink bg-ink shadow-2xl overflow-hidden">
                       <div className="relative aspect-[9/16]">
                         <LoopVideo
@@ -229,14 +259,18 @@ export default function VideoPage() {
                         />
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="absolute -top-5 -right-4 rounded-full bg-white shadow-xl border border-ink/5 px-4 py-2 flex items-center gap-2">
+                  <motion.div
+                    animate={{ y: [0, -9, 0] }}
+                    transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -top-5 -right-4 rounded-full bg-white shadow-xl border border-ink/5 px-4 py-2 flex items-center gap-2"
+                  >
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-baby text-ink">
                       <Play className="h-3.5 w-3.5 fill-ink" />
                     </span>
                     <span className="text-xs font-bold">Showreel</span>
-                  </div>
+                  </motion.div>
                 </div>
               </Reveal>
             </div>
@@ -244,7 +278,7 @@ export default function VideoPage() {
         </section>
 
         {/* ===================== SERVICES ===================== */}
-        <section className="relative py-16 md:py-24 bg-mist">
+        <ScrollSection className="relative py-16 md:py-24 bg-mist">
           <div className="mx-auto max-w-7xl px-6 md:px-10">
             <div className="max-w-2xl">
               <Kicker>Τι φτιάχνουμε</Kicker>
@@ -301,10 +335,10 @@ export default function VideoPage() {
               </Reveal>
             </div>
           </div>
-        </section>
+        </ScrollSection>
 
         {/* ===================== SHOWCASE GALLERY ===================== */}
-        <section className="relative py-16 md:py-24">
+        <ScrollSection className="relative py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-6 md:px-10">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
               <div className="max-w-xl">
@@ -362,10 +396,10 @@ export default function VideoPage() {
               ))}
             </div>
           </div>
-        </section>
+        </ScrollSection>
 
         {/* ===================== PROCESS ===================== */}
-        <section className="relative py-20 md:py-28 bg-ink text-white overflow-hidden grain">
+        <ScrollSection className="relative py-20 md:py-28 bg-ink text-white overflow-hidden grain">
           <div className="pointer-events-none absolute inset-0" aria-hidden="true">
             <div className="absolute top-0 right-0 h-80 w-80 rounded-full bg-baby/15 blur-3xl" />
           </div>
@@ -401,10 +435,10 @@ export default function VideoPage() {
               })}
             </div>
           </div>
-        </section>
+        </ScrollSection>
 
         {/* ===================== CTA BAND ===================== */}
-        <section className="relative py-20 md:py-28">
+        <ScrollSection dim={false} className="relative py-20 md:py-28">
           <div className="mx-auto max-w-5xl px-6 md:px-10">
             <Reveal>
               <div className="relative overflow-hidden rounded-3xl bg-baby-light border border-baby/30 p-10 md:p-16 text-center">
@@ -439,7 +473,7 @@ export default function VideoPage() {
               </div>
             </Reveal>
           </div>
-        </section>
+        </ScrollSection>
       </main>
 
       <Footer />
