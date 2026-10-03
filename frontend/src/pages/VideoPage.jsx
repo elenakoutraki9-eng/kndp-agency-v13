@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "@/App.css";
 import Lenis from "lenis";
 import { Toaster } from "sonner";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Play,
@@ -17,6 +17,9 @@ import {
   Palette,
   Send,
   Check,
+  X,
+  Maximize2,
+  MoveHorizontal,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -65,6 +68,189 @@ function LoopVideo({ src, poster, className = "" }) {
       autoPlay
       preload="metadata"
     />
+  );
+}
+
+/* Draggable Before/After comparison: a desaturated "raw" poster (before)
+   vs the live, colour-graded video (after). Dragging the handle reveals
+   how the studio's video treatment transforms the footage. */
+function BeforeAfter({ src, poster, rounded = "rounded-none" }) {
+  const [pct, setPct] = useState(52);
+  const areaRef = useRef(null);
+  const draggingRef = useRef(false);
+
+  const setFromX = (clientX) => {
+    const el = areaRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    let p = ((clientX - r.left) / r.width) * 100;
+    p = Math.max(2, Math.min(98, p));
+    setPct(p);
+  };
+  const onDown = (e) => {
+    draggingRef.current = true;
+    try {
+      areaRef.current.setPointerCapture(e.pointerId);
+    } catch {
+      /* no-op */
+    }
+    setFromX(e.clientX);
+  };
+  const onMove = (e) => {
+    if (!draggingRef.current) return;
+    setFromX(e.clientX);
+  };
+  const onUp = () => {
+    draggingRef.current = false;
+  };
+
+  return (
+    <div
+      ref={areaRef}
+      onPointerDown={onDown}
+      onPointerMove={onMove}
+      onPointerUp={onUp}
+      onPointerCancel={onUp}
+      className={`absolute inset-0 touch-none select-none cursor-ew-resize ${rounded} overflow-hidden`}
+    >
+      {/* BEFORE — raw / desaturated poster */}
+      <img
+        src={poster}
+        alt=""
+        draggable="false"
+        className="absolute inset-0 h-full w-full object-cover grayscale contrast-[0.8] brightness-95"
+      />
+      <span className="pointer-events-none absolute left-2 top-2 z-20 rounded-full bg-ink/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/90">
+        Πριν
+      </span>
+
+      {/* AFTER — colour-graded live video, revealed from the handle rightwards */}
+      <div
+        className="absolute inset-0"
+        style={{ clipPath: `inset(0 0 0 ${pct}%)` }}
+      >
+        <LoopVideo
+          src={src}
+          poster={poster}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      </div>
+      <span className="pointer-events-none absolute right-2 top-2 z-20 rounded-full bg-baby px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink">
+        Μετά
+      </span>
+
+      {/* Handle */}
+      <div
+        className="pointer-events-none absolute inset-y-0 z-20 w-0.5 -ml-px bg-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.15)]"
+        style={{ left: `${pct}%` }}
+      >
+        <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white text-ink shadow-lg">
+          <MoveHorizontal className="h-4 w-4" />
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* One showcase item: device frame + before/after comparison + a play
+   button that opens the full-screen lightbox. */
+function ShowcaseCard({ item, index, onPlay }) {
+  const PlayBtn = (
+    <button
+      onClick={() => onPlay(item)}
+      onPointerDown={(e) => e.stopPropagation()}
+      data-testid={`video-showcase-play-${index}`}
+      aria-label={`Αναπαραγωγή: ${item.label}`}
+      className="absolute right-2 bottom-2 z-30 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-ink shadow-lg backdrop-blur transition-transform duration-200 hover:scale-110 hover:bg-white"
+    >
+      <Maximize2 className="h-4 w-4" />
+    </button>
+  );
+
+  return (
+    <div data-testid={`video-showcase-${index}`} className="group">
+      {item.kind === "phone" ? (
+        <div className="mx-auto w-full max-w-[220px] rounded-[2rem] border-[7px] border-ink bg-ink shadow-xl overflow-hidden transition-transform duration-300 group-hover:-translate-y-1">
+          <div className="relative aspect-[9/16]">
+            <BeforeAfter src={item.src} poster={item.poster} />
+            {PlayBtn}
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-ink/10 bg-white shadow-lg overflow-hidden transition-transform duration-300 group-hover:-translate-y-1">
+          <div className="flex items-center gap-1.5 border-b border-ink/5 px-3 py-2">
+            <span className="h-2 w-2 rounded-full bg-ink/15" />
+            <span className="h-2 w-2 rounded-full bg-ink/15" />
+            <span className="h-2 w-2 rounded-full bg-ink/15" />
+          </div>
+          <div className="relative aspect-video bg-ink">
+            <BeforeAfter src={item.src} poster={item.poster} />
+            {PlayBtn}
+          </div>
+        </div>
+      )}
+      <div className="mt-4 flex items-center justify-between">
+        <span className="font-display font-bold tracking-tight">{item.label}</span>
+        <span className="rounded-full bg-baby-light px-3 py-1 text-xs font-semibold text-baby-dark">
+          {item.tag}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* Full-screen video player with sound + native controls. */
+function VideoLightbox({ item, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
+
+  return (
+    <motion.div
+      data-testid="video-lightbox"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/85 backdrop-blur-md p-4 md:p-8"
+    >
+      <motion.div
+        initial={{ scale: 0.92, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 260, damping: 26 }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-4xl"
+      >
+        <button
+          onClick={onClose}
+          data-testid="video-lightbox-close"
+          aria-label="Κλείσιμο"
+          className="absolute -top-12 right-0 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        <video
+          key={item.src}
+          src={item.src}
+          poster={item.poster}
+          controls
+          autoPlay
+          loop
+          playsInline
+          className="mx-auto max-h-[80vh] w-auto max-w-full rounded-2xl bg-black shadow-2xl"
+        />
+        <p className="mt-3 text-center text-sm font-semibold text-white/80">{item.label}</p>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -142,6 +328,7 @@ const steps = [
 export default function VideoPage() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const [lightbox, setLightbox] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -245,12 +432,16 @@ export default function VideoPage() {
                     </div>
                   </ParallaxY>
 
-                  <div className="absolute -top-5 -right-4 rounded-full bg-white shadow-xl border border-ink/5 px-4 py-2 flex items-center gap-2">
+                  <button
+                    onClick={() => setLightbox({ src: V.hero, poster: POSTER.hero, label: "KNDP — Showreel" })}
+                    data-testid="hero-showreel-play"
+                    className="absolute -top-5 -right-4 rounded-full bg-white shadow-xl border border-ink/5 px-4 py-2 flex items-center gap-2 transition-transform duration-200 hover:scale-105"
+                  >
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-baby text-ink">
                       <Play className="h-3.5 w-3.5 fill-ink" />
                     </span>
                     <span className="text-xs font-bold">Showreel</span>
-                  </div>
+                  </button>
                 </div>
               </Reveal>
             </div>
@@ -338,43 +529,16 @@ export default function VideoPage() {
             <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {showcase.map((item, i) => (
                 <Reveal key={item.label} delay={i * 0.08}>
-                  <div data-testid={`video-showcase-${i}`} className="group">
-                    {item.kind === "phone" ? (
-                      <div className="mx-auto w-full max-w-[220px] rounded-[2rem] border-[7px] border-ink bg-ink shadow-xl overflow-hidden transition-transform duration-300 group-hover:-translate-y-1">
-                        <div className="relative aspect-[9/16]">
-                          <LoopVideo
-                            src={item.src}
-                            poster={item.poster}
-                            className="absolute inset-0 h-full w-full object-cover"
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="rounded-xl border border-ink/10 bg-white shadow-lg overflow-hidden transition-transform duration-300 group-hover:-translate-y-1">
-                        <div className="flex items-center gap-1.5 border-b border-ink/5 px-3 py-2">
-                          <span className="h-2 w-2 rounded-full bg-ink/15" />
-                          <span className="h-2 w-2 rounded-full bg-ink/15" />
-                          <span className="h-2 w-2 rounded-full bg-ink/15" />
-                        </div>
-                        <div className="relative aspect-video bg-ink">
-                          <LoopVideo
-                            src={item.src}
-                            poster={item.poster}
-                            className="absolute inset-0 h-full w-full object-cover"
-                          />
-                        </div>
-                      </div>
-                    )}
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="font-display font-bold tracking-tight">{item.label}</span>
-                      <span className="rounded-full bg-baby-light px-3 py-1 text-xs font-semibold text-baby-dark">
-                        {item.tag}
-                      </span>
-                    </div>
-                  </div>
+                  <ShowcaseCard item={item} index={i} onPlay={setLightbox} />
                 </Reveal>
               ))}
             </div>
+            <Reveal delay={0.1}>
+              <p className="mt-6 flex items-center gap-2 text-sm text-ink/50">
+                <MoveHorizontal className="h-4 w-4 text-baby-dark" />
+                Σύρε για σύγκριση «πριν / μετά» · πάτα το εικονίδιο για πλήρη οθόνη με ήχο
+              </p>
+            </Reveal>
           </div>
         </ScrollSection>
 
@@ -455,6 +619,12 @@ export default function VideoPage() {
           </div>
         </ScrollSection>
       </main>
+
+      <AnimatePresence>
+        {lightbox && (
+          <VideoLightbox item={lightbox} onClose={() => setLightbox(null)} />
+        )}
+      </AnimatePresence>
 
       <Footer />
       <Toaster position="bottom-right" richColors />
