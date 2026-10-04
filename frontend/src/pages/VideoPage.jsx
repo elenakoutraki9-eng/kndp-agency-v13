@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import "@/App.css";
 import Lenis from "lenis";
 import { Toaster } from "sonner";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Play,
@@ -22,7 +21,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Cursor from "@/components/Cursor";
 import ScrollProgress from "@/components/ScrollProgress";
-import { WordMask, Reveal, Kicker, Magnetic, ParallaxY } from "@/components/Reveal";
+import { WordMask, Reveal, Kicker, Magnetic } from "@/components/Reveal";
 import { setLenis } from "@/lib/scroll";
 import useIsMobile from "@/hooks/useIsMobile";
 
@@ -108,27 +107,13 @@ function ShowcaseCard({ item, index }) {
   );
 }
 
-/* Scroll-linked "section to section" transition: each section comes
-   forward (fades in + scales up) as it enters the viewport and gently
-   recedes (dims + scales down) as it leaves — the site's panel feel. */
-function ScrollSection({ children, className = "", dim = true, id }) {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const s = useSpring(scrollYProgress, { stiffness: 140, damping: 32, mass: 0.4 });
-  const opacity = useTransform(s, [0, 0.16, 0.85, 1], [0.2, 1, 1, dim ? 0.45 : 1]);
-  const scale = useTransform(s, [0, 0.16, 0.85, 1], [0.94, 1, 1, dim ? 0.97 : 1]);
+/* Plain section wrapper (kept for a stable API; heavy scroll-linked
+   scale/opacity transitions were removed for smoother scrolling). */
+function ScrollSection({ children, className = "", id }) {
   return (
-    <motion.section
-      id={id}
-      ref={ref}
-      style={{ opacity, scale }}
-      className={`will-change-[opacity,transform] ${className}`}
-    >
+    <section id={id} className={className}>
       {children}
-    </motion.section>
+    </section>
   );
 }
 
@@ -265,25 +250,23 @@ export default function VideoPage() {
             <div className="lg:col-span-6">
               <Reveal delay={0.2} y={40}>
                 <div className="relative">
-                  <ParallaxY distance={26}>
-                    <div className="relative rounded-2xl border border-ink/10 bg-white shadow-2xl shadow-baby/20 overflow-hidden">
-                      <div className="flex items-center gap-1.5 border-b border-ink/5 px-4 py-3">
-                        <span className="h-3 w-3 rounded-full bg-[#FF5F57]" />
-                        <span className="h-3 w-3 rounded-full bg-[#FEBC2E]" />
-                        <span className="h-3 w-3 rounded-full bg-[#28C840]" />
-                        <span className="ml-3 truncate rounded-md bg-mist px-3 py-1 text-xs text-ink/40">
-                          kndp.studio/showreel
-                        </span>
-                      </div>
-                      <div className="relative aspect-video bg-ink">
-                        <LoopVideo
-                          src={V.hero}
-                          poster={POSTER.hero}
-                          className="absolute inset-0 h-full w-full object-cover"
-                        />
-                      </div>
+                  <div className="relative rounded-2xl border border-ink/10 bg-white shadow-2xl shadow-baby/20 overflow-hidden">
+                    <div className="flex items-center gap-1.5 border-b border-ink/5 px-4 py-3">
+                      <span className="h-3 w-3 rounded-full bg-[#FF5F57]" />
+                      <span className="h-3 w-3 rounded-full bg-[#FEBC2E]" />
+                      <span className="h-3 w-3 rounded-full bg-[#28C840]" />
+                      <span className="ml-3 truncate rounded-md bg-mist px-3 py-1 text-xs text-ink/40">
+                        kndp.studio/showreel
+                      </span>
                     </div>
-                  </ParallaxY>
+                    <div className="relative aspect-video bg-ink">
+                      <LoopVideo
+                        src={V.hero}
+                        poster={POSTER.hero}
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+                    </div>
+                  </div>
 
                   <div className="absolute -top-5 -right-4 rounded-full bg-white shadow-xl border border-ink/5 px-4 py-2 flex items-center gap-2">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-baby text-ink">
