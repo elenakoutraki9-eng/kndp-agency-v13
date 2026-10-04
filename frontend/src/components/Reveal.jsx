@@ -37,7 +37,7 @@ export const WordMask = ({ text, accent = [], delay = 0, stagger = 0.07, classNa
       {words.map((w, i) => (
         <motion.span
           key={`${w}-${i}`}
-          className="inline-block overflow-hidden align-bottom pt-[0.1em] -mt-[0.1em] pb-[0.22em] -mb-[0.22em]"
+          className="inline-block overflow-hidden align-bottom pt-[0.22em] -mt-[0.22em] pb-[0.3em] -mb-[0.3em] px-[0.12em] -mx-[0.12em]"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-60px" }}
