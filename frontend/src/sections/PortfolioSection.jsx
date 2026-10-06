@@ -1,5 +1,5 @@
 import { useRef, Fragment } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { WordMask, Reveal, Kicker, Magnetic } from "@/components/Reveal";
 import { StackPanel } from "@/components/StackSection";
@@ -50,7 +50,10 @@ function StackCard({ p, i, total, progress, isMobile }) {
   const targetScale = 1 - (total - 1 - i) * 0.015;
   // Recede finishes within this card's own slot, so it's already settled by
   // the time the next card arrives and stacks on top of it.
-  const scale = useTransform(progress, [i / total, (i + 1) / total], [1, targetScale]);
+  const rawScale = useTransform(progress, [i / total, (i + 1) / total], [1, targetScale]);
+  // Spring-smooth the scale so it physically eases rather than tracking
+  // scroll 1:1 — removes the mechanical jerk between cards.
+  const scale = useSpring(rawScale, { stiffness: 120, damping: 28, restDelta: 0.0005 });
   const imageRight = i % 2 === 1;
   // Small, consistent step per card so each new one slides up and stacks on
   // top of the previous, leaving a thin visible sliver of it at the top —
@@ -158,14 +161,10 @@ export default function PortfolioSection(props) {
     target: containerRef,
     offset: ["start start", "end end"],
   });
-  // Spacing that paces the staggered REVEAL between cards (a spacer sibling
-  // between each pair). Because the cards themselves carry no margin, they all
-  // stay stuck until the container ends and accumulate into a deck.
-  const gapVh = isMobile ? 22 : 50;
-  // A final hold so the fully-stacked deck registers before the whole stack
-  // releases together into the CTA / next section. Kept modest to avoid dead
-  // scroll — this time the WHOLE deck holds (not one lonely card).
-  const finalHoldVh = isMobile ? 26 : 30;
+  // Bigger gap = more scroll required per card reveal = slower, more deliberate pacing.
+  const gapVh = isMobile ? 32 : 80;
+  // Longer final hold before the whole deck releases.
+  const finalHoldVh = isMobile ? 32 : 52;
 
   return (
     <StackPanel {...props} innerClassName="">
