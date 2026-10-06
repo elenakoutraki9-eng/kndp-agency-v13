@@ -1,6 +1,5 @@
 import { useRef, useState, useLayoutEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight } from "lucide-react";
 import { WordMask, Reveal } from "@/components/Reveal";
 import useIsMobile from "@/hooks/useIsMobile";
 
@@ -20,7 +19,7 @@ function CompanyCard({ c, i }) {
   return (
     <div
       data-testid={`company-card-${i}`}
-      className="group relative flex w-[290px] shrink-0 snap-start flex-col rounded-2xl border border-white/10 bg-white/[0.05] p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:bg-white/[0.10] hover:border-baby/40 hover:shadow-2xl hover:shadow-baby/10 md:w-[320px] md:p-7"
+      className="group relative flex w-[290px] shrink-0 snap-start flex-col rounded-2xl border border-white/10 bg-white/[0.05] p-6 md:w-[320px] md:p-7"
     >
       {/* Logo monogram */}
       <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-baby to-baby-dark font-display text-lg font-bold text-white shadow-lg shadow-baby/40">
@@ -37,8 +36,7 @@ function CompanyCard({ c, i }) {
         {c.tag}
       </div>
 
-      {/* Hover ring */}
-      <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-baby/0 transition-all duration-300 group-hover:ring-baby/30" />
+      {/* Hover ring — removed */}
     </div>
   );
 }
@@ -58,11 +56,8 @@ function SectionHeader() {
           className="block"
         />
       </h2>
-      <p className="mt-5 flex max-w-xl items-center gap-2 text-sm leading-relaxed text-white/50 md:text-base">
+      <p className="mt-5 max-w-xl text-sm leading-relaxed text-white/50 md:text-base">
         Επιχειρήσεις κάθε μεγέθους που εμπιστεύτηκαν την KNDP για τα ψηφιακά τους projects.
-        <span className="hidden items-center gap-1 whitespace-nowrap font-semibold text-baby md:inline-flex">
-          Σύρε <ArrowRight className="h-4 w-4" />
-        </span>
       </p>
     </Reveal>
   );
@@ -143,7 +138,7 @@ export default function CompaniesSection() {
       <div className="pointer-events-none absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-baby/5 blur-3xl" />
 
       <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-        <div className="relative mx-auto w-full max-w-7xl px-6 md:px-10">
+        <div className="relative mx-auto w-full max-w-7xl px-6 md:px-10 pt-16 md:pt-20">
           <SectionHeader />
         </div>
 
