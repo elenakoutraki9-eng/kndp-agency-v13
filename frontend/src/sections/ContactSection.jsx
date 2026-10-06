@@ -47,8 +47,9 @@ export default function ContactSection(props) {
       className="py-14 md:py-16 relative bg-baby rounded-t-[2.5rem] overflow-hidden grain"
     >
       <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/30 blur-3xl pointer-events-none" />
-      <div className="mx-auto max-w-6xl px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 relative">
-          <div className="lg:col-span-6">
+      <div className="mx-auto max-w-6xl px-6 md:px-10 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-0 relative">
+          {/* Left: heading + email */}
+          <div className="lg:pr-14 lg:border-r lg:border-ink/10 relative">
             <Kicker waypoint="contact" className="text-ink/70">Επικοινωνία</Kicker>
             <h2
               data-testid="contact-headline"
@@ -57,7 +58,7 @@ export default function ContactSection(props) {
               <WordMask text="Ας" className="block" />
               <WordMask text="μιλήσουμε." accent={["μιλήσουμε."]} delay={0.2} className="block" />
             </h2>
-            <Reveal delay={0.4} className="mt-6 space-y-3">
+            <Reveal delay={0.4} className="mt-6">
               <a
                 href="mailto:hello@kndp.studio"
                 data-testid="contact-email-link"
@@ -74,19 +75,26 @@ export default function ContactSection(props) {
                 </div>
                 <ArrowUpRight className="h-4 w-4 text-ink/30 transition-transform duration-300 group-hover:rotate-45 group-hover:text-baby-dark" />
               </a>
-
-              <div
-                data-testid="contact-or-divider"
-                className="lg:hidden flex items-center gap-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-ink/40"
-              >
-                <span className="h-px flex-1 bg-ink/10" />
-                ή
-                <span className="h-px flex-1 bg-ink/10" />
-              </div>
             </Reveal>
+
+            {/* Mobile: horizontal divider */}
+            <div
+              data-testid="contact-or-divider"
+              className="mt-6 flex lg:hidden items-center gap-3 text-xs font-semibold uppercase tracking-[0.25em] text-ink/40"
+            >
+              <span className="h-px flex-1 bg-ink/15" />
+              ή
+              <span className="h-px flex-1 bg-ink/15" />
+            </div>
+
+            {/* Desktop: ή pill centred on the border */}
+            <div className="hidden lg:flex absolute -right-[17px] top-1/2 -translate-y-1/2 h-8 w-8 items-center justify-center rounded-full border border-ink/10 bg-baby text-xs font-semibold uppercase tracking-widest text-ink/50 z-10">
+              ή
+            </div>
           </div>
 
-          <div className="lg:col-span-6">
+          {/* Right: form */}
+          <div className="lg:pl-14">
             <Reveal delay={0.25}>
               <form
                 data-testid="contact-form"

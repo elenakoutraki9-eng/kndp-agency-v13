@@ -10,6 +10,7 @@ import { useContactModal } from "@/context/ContactModalContext";
 const homeSections = [
   { id: "#portfolio", label: "Έργα", testid: "nav-link-portfolio" },
   { id: "#services", label: "Υπηρεσίες", testid: "nav-link-services" },
+  { id: "#companies", label: "Συνεργασίες", testid: "nav-link-companies" },
   { id: "#contact", label: "Επικοινωνία", testid: "nav-link-contact" },
 ];
 
