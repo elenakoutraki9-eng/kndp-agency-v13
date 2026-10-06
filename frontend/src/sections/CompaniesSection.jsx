@@ -1,6 +1,6 @@
 import { useRef, useState, useLayoutEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { WordMask, Reveal, Kicker } from "@/components/Reveal";
 import useIsMobile from "@/hooks/useIsMobile";
 
@@ -20,35 +20,43 @@ function CompanyCard({ c, i }) {
   return (
     <div
       data-testid={`company-card-${i}`}
-      className="group relative flex w-[290px] shrink-0 snap-start flex-col rounded-2xl border border-ink/10 bg-white p-6 shadow-xl shadow-ink/5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-baby/20 md:w-[340px] md:p-7"
+      className="group relative flex w-[290px] shrink-0 snap-start flex-col rounded-2xl border border-white/10 bg-white/[0.05] p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:bg-white/[0.10] hover:border-baby/40 hover:shadow-2xl hover:shadow-baby/10 md:w-[320px] md:p-7"
     >
-      {/* Logo mark (monogram placeholder) */}
-      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-baby to-baby-dark font-display text-lg font-bold text-white shadow-lg shadow-baby/30">
+      {/* Logo monogram */}
+      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-baby to-baby-dark font-display text-lg font-bold text-white shadow-lg shadow-baby/40">
         {c.mono}
       </div>
 
-      <h3 className="mt-5 font-display text-lg font-medium tracking-tight text-ink md:text-xl">
+      <h3 className="mt-5 font-display text-lg font-medium tracking-tight text-white md:text-xl">
         {c.name}
       </h3>
-      <p className="mt-1.5 text-sm leading-relaxed text-ink/55">{c.line}</p>
+      <p className="mt-1.5 text-sm leading-relaxed text-white/50">{c.line}</p>
 
-      <div className="mt-6 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-baby-dark">
-        <span className="h-1.5 w-1.5 rounded-full bg-baby-dark" />
+      <div className="mt-6 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-baby">
+        <span className="h-1.5 w-1.5 rounded-full bg-baby" />
         {c.tag}
       </div>
 
-      <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-baby/0 transition-all duration-300 group-hover:ring-baby/40" />
+      {/* Hover ring */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-baby/0 transition-all duration-300 group-hover:ring-baby/30" />
     </div>
   );
 }
 
-function SectionHeader({ light = false }) {
+function SectionHeader() {
   return (
     <Reveal>
-      <Kicker waypoint="companies">Συνεργασίες</Kicker>
+      {/* Stat badge */}
+      <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-baby/30 bg-baby/10 px-4 py-1.5">
+        <Sparkles className="h-3.5 w-3.5 text-baby" />
+        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-baby">
+          {companies.length}+ επιχειρήσεις εμπιστεύτηκαν την KNDP
+        </span>
+      </div>
+
       <h2
         data-testid="companies-headline"
-        className="mt-3 font-display font-medium tracking-tight text-3xl md:text-5xl"
+        className="font-display font-bold tracking-tighter text-4xl md:text-6xl text-white leading-[0.95]"
       >
         <WordMask text="Εταιρείες που" className="block" />
         <WordMask
@@ -58,9 +66,9 @@ function SectionHeader({ light = false }) {
           className="block"
         />
       </h2>
-      <p className="mt-4 flex max-w-2xl items-center gap-2 text-sm leading-relaxed text-ink/60 md:text-base">
+      <p className="mt-5 flex max-w-xl items-center gap-2 text-sm leading-relaxed text-white/50 md:text-base">
         Επιχειρήσεις κάθε μεγέθους που εμπιστεύτηκαν την KNDP για τα ψηφιακά τους projects.
-        <span className="hidden items-center gap-1 whitespace-nowrap font-semibold text-baby-dark md:inline-flex">
+        <span className="hidden items-center gap-1 whitespace-nowrap font-semibold text-baby md:inline-flex">
           Σύρε <ArrowRight className="h-4 w-4" />
         </span>
       </p>
@@ -78,10 +86,6 @@ export default function CompaniesSection() {
     target: sectionRef,
     offset: ["start start", "end end"],
   });
-  // Pan the horizontal track left→right: as the user scrolls down while the
-  // section is pinned, the camera travels across the row from the first card
-  // (left) to the last (right). Content translates by the exact overflow
-  // distance so every card is revealed by the time the pin releases.
   const x = useTransform(scrollYProgress, [0, 1], [0, -distance]);
 
   useLayoutEffect(() => {
@@ -92,7 +96,6 @@ export default function CompaniesSection() {
       setDistance(Math.max(0, d));
     };
     measure();
-    // Re-measure after fonts/images settle and on resize.
     const t = setTimeout(measure, 400);
     window.addEventListener("resize", measure);
     return () => {
@@ -101,19 +104,22 @@ export default function CompaniesSection() {
     };
   }, [isMobile]);
 
-  // MOBILE: no pin — a native, swipeable horizontal scroller (left→right feel
-  // preserved) so touch scrolling never jams.
+  // MOBILE
   if (isMobile) {
     return (
       <section
         id="companies"
         data-testid="companies-section"
-        className="relative bg-paper py-16"
+        className="relative bg-ink py-16 overflow-hidden grain"
       >
-        <div className="mx-auto max-w-7xl px-6">
+        {/* Decorative glow blobs */}
+        <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-baby/10 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-baby/8 blur-3xl" />
+
+        <div className="relative mx-auto max-w-7xl px-6">
           <SectionHeader />
         </div>
-        <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="relative mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {companies.map((c, i) => (
             <CompanyCard key={c.name} c={c} i={i} />
           ))}
@@ -122,28 +128,31 @@ export default function CompaniesSection() {
     );
   }
 
-  // DESKTOP: pinned horizontal track. Section height = one viewport + the
-  // horizontal overflow, giving a 1:1 mapping between vertical scroll and the
-  // left→right pan while the inner container is stuck to the top.
+  // DESKTOP: pinned horizontal track
   return (
     <section
       id="companies"
       data-testid="companies-section"
       ref={sectionRef}
-      className="relative bg-paper"
+      className="relative bg-ink grain"
       style={{ height: `calc(100vh + ${distance}px)` }}
     >
+      {/* Decorative glow blobs */}
+      <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-baby/8 blur-3xl" />
+      <div className="pointer-events-none absolute top-1/2 right-0 h-[400px] w-[400px] -translate-y-1/2 rounded-full bg-baby/6 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-baby/5 blur-3xl" />
+
       <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-        <div className="mx-auto w-full max-w-7xl px-6 md:px-10">
+        <div className="relative mx-auto w-full max-w-7xl px-6 md:px-10">
           <SectionHeader />
         </div>
 
-        <div className="mt-10 md:mt-14">
+        <div className="relative mt-10 md:mt-14">
           <motion.div
             ref={trackRef}
             style={{ x }}
             data-testid="companies-track"
-            className="flex w-max gap-6 px-6 md:px-10"
+            className="flex w-max gap-5 px-6 md:px-10"
           >
             {companies.map((c, i) => (
               <CompanyCard key={c.name} c={c} i={i} />
