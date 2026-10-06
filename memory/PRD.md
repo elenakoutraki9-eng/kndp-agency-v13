@@ -198,3 +198,5 @@ Build the KNDP agency website. Clean, modern startup look; white + baby blue col
 - 2026-10 (GitHub re-open): Recreated missing backend/.env (MONGO_URL, DB_NAME, CORS_ORIGINS, ADMIN_PASSWORD, EMERGENT_LLM_KEY) and frontend/.env (REACT_APP_BACKEND_URL); reinstalled deps; services running. GOOGLE_PLACES_API_KEY not set (Places lookup disabled until provided).
 
 - 2026-10 (Page transition): Fixed visible scroll-up to home hero when navigating to /video (cause: html scroll-behavior:smooth + window.scrollTo(0,0)). Added PageTransitionProvider (components/PageTransition.jsx) + useTransitionNavigate: baby-blue two-layer curtain slides up with white KNDP logo + dot + progress bar, scroll resets instantly behind it, route swaps, curtain slides away upward. Used by Navbar, Footer, VideoPage CTAs; home section targets jump instantly behind curtain (scrollToId {immediate}).
+
+- 2026-10 (Video visual edits): Services section bg mist→paper (white, matches page); service cards compacted (p-5, smaller icon/title/text, gap-4); Process step cards now place the icon left and number right in a flex row (no overlap).

@@ -281,7 +281,7 @@ export default function VideoPage() {
         </section>
 
         {/* ===================== SERVICES ===================== */}
-        <ScrollSection className="relative py-16 md:py-24 bg-mist">
+        <ScrollSection className="relative py-16 md:py-24 bg-paper">
           <div className="mx-auto max-w-7xl px-6 md:px-10">
             <div className="max-w-2xl">
               <Kicker>Τι φτιάχνουμε</Kicker>
@@ -296,21 +296,21 @@ export default function VideoPage() {
               </Reveal>
             </div>
 
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {services.map((s, i) => {
                 const Icon = s.icon;
                 return (
                   <Reveal key={s.title} delay={i * 0.06}>
                     <div
                       data-testid={`video-service-card-${i}`}
-                      className="group h-full rounded-2xl border border-ink/8 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-baby/15"
+                      className="group h-full rounded-2xl border border-ink/8 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-baby/15"
                     >
-                      <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-baby-light text-baby-dark transition-colors duration-300 group-hover:bg-baby group-hover:text-ink">
-                        <Icon className="h-6 w-6" />
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-baby-light text-baby-dark transition-colors duration-300 group-hover:bg-baby group-hover:text-ink">
+                        <Icon className="h-5 w-5" />
                       </span>
-                      <h3 className="mt-5 font-display text-xl font-bold tracking-tight">{s.title}</h3>
-                      <p className="mt-2.5 text-ink/60 leading-relaxed">{s.desc}</p>
-                      <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-baby-dark">
+                      <h3 className="mt-4 font-display text-lg font-bold tracking-tight">{s.title}</h3>
+                      <p className="mt-2 text-sm text-ink/60 leading-relaxed">{s.desc}</p>
+                      <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-baby-dark">
                         {s.for}
                       </p>
                     </div>
@@ -323,15 +323,15 @@ export default function VideoPage() {
                 <button
                   onClick={goContact}
                   data-testid="video-service-cta-tile"
-                  className="group h-full w-full text-left rounded-2xl bg-ink p-7 text-white transition-all duration-300 hover:-translate-y-1"
+                  className="group h-full w-full text-left rounded-2xl bg-ink p-5 text-white transition-all duration-300 hover:-translate-y-1"
                 >
-                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-baby text-ink">
-                    <ArrowUpRight className="h-6 w-6 transition-transform duration-300 group-hover:rotate-45" />
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-baby text-ink">
+                    <ArrowUpRight className="h-5 w-5 transition-transform duration-300 group-hover:rotate-45" />
                   </span>
-                  <h3 className="mt-5 font-display text-xl font-bold tracking-tight">
+                  <h3 className="mt-4 font-display text-lg font-bold tracking-tight">
                     Κάτι άλλο στο μυαλό σου;
                   </h3>
-                  <p className="mt-2.5 text-white/60 leading-relaxed">
+                  <p className="mt-2 text-sm text-white/60 leading-relaxed">
                     Πες μας την ιδέα σου και τη φέρνουμε σε κίνηση. Δωρεάν πρώτη κουβέντα.
                   </p>
                 </button>
@@ -393,10 +393,12 @@ export default function VideoPage() {
                 return (
                   <Reveal key={st.n} delay={i * 0.08}>
                     <div className="relative rounded-2xl border border-white/10 bg-white/[0.03] p-7 h-full">
-                      <span className="font-display text-sm font-bold text-baby">{st.n}</span>
-                      <span className="mt-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-baby/15 text-baby">
-                        <Icon className="h-5 w-5" />
-                      </span>
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-baby/15 text-baby">
+                          <Icon className="h-5 w-5" />
+                        </span>
+                        <span className="font-display text-sm font-bold tracking-wider text-baby">{st.n}</span>
+                      </div>
                       <h3 className="mt-4 font-display text-lg font-bold tracking-tight">{st.title}</h3>
                       <p className="mt-2 text-sm text-white/55 leading-relaxed">{st.desc}</p>
                     </div>
