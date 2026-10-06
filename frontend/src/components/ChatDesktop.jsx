@@ -15,7 +15,7 @@ import {
   Boxes,
   MessagesSquare,
 } from "lucide-react";
-import { scrollToId } from "@/lib/scroll";
+import { useContactModal } from "@/context/ContactModalContext";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -30,6 +30,7 @@ const CATEGORY_META = {
 };
 
 export default function ChatDesktop({ onActiveChange }) {
+  const { openModal } = useContactModal();
   const [business, setBusiness] = useState("");
   const [status, setStatus] = useState("idle"); // idle | loading | done | error
   const [ideas, setIdeas] = useState([]);
@@ -261,7 +262,7 @@ export default function ChatDesktop({ onActiveChange }) {
                     <motion.button
                       type="button"
                       data-testid="hero-ideas-more-cta"
-                      onClick={() => scrollToId("#contact")}
+                      onClick={() => openModal()}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.15 }}
