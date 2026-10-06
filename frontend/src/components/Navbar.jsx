@@ -4,6 +4,7 @@ import { Menu, X, ArrowUpRight, ChevronDown } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { scrollToId } from "@/lib/scroll";
 import { useTransitionNavigate } from "@/components/PageTransition";
+import { useContactModal } from "@/context/ContactModalContext";
 
 // Sections of the home page, shown as a submenu under "Αρχική".
 const homeSections = [
@@ -18,6 +19,7 @@ export default function Navbar() {
   const [homeMenu, setHomeMenu] = useState(false);
   const navigate = useTransitionNavigate();
   const location = useLocation();
+  const { openModal } = useContactModal();
   const onHome = location.pathname === "/";
   const onVideo = location.pathname === "/video";
 
@@ -152,7 +154,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => goSection("#contact")}
+            onClick={openModal}
             data-testid="nav-cta-button"
             className="btn-shine hidden md:inline-flex items-center gap-1.5 rounded-full bg-baby px-5 py-2.5 text-sm font-bold text-ink transition-[transform,background-color] duration-300 hover:scale-105 hover:bg-baby-dark"
           >
@@ -230,7 +232,7 @@ export default function Navbar() {
               </motion.div>
 
               <button
-                onClick={() => goSection("#contact")}
+                onClick={() => { setOpen(false); openModal(); }}
                 data-testid="mobile-nav-cta-button"
                 className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-baby px-6 py-3.5 font-bold text-ink"
               >

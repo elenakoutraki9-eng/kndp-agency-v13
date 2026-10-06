@@ -7,11 +7,13 @@ import ChatDesktop from "@/components/ChatDesktop";
 import { StackPanel } from "@/components/StackSection";
 import { scrollToId } from "@/lib/scroll";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useContactModal } from "@/context/ContactModalContext";
 
 export default function Hero(props) {
   const heroRef = useRef(null);
   const isMobile = useIsMobile();
   const { mx, my, onMouseMove, onMouseLeave } = useMouseParallax();
+  const { openModal } = useContactModal();
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -72,7 +74,7 @@ export default function Hero(props) {
           >
             <Magnetic strength={0.25}>
               <button
-                onClick={() => scrollToId("#contact")}
+                onClick={openModal}
                 data-testid="hero-cta-primary"
                 className="btn-shine group inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-sm font-bold text-white transition-[transform,background-color] duration-300 hover:scale-105 hover:bg-baby-dark hover:text-ink"
               >
