@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useContactModal } from "@/context/ContactModalContext";
 import "@/App.css";
 import Lenis from "lenis";
 import { Toaster } from "sonner";
@@ -167,6 +168,7 @@ const steps = [
 export default function VideoPage() {
   const isMobile = useIsMobile();
   const navigate = useTransitionNavigate();
+  const { openModal } = useContactModal();
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -191,8 +193,6 @@ export default function VideoPage() {
       lenis.destroy();
     };
   }, [isMobile]);
-
-  const goContact = () => navigate("/", { state: { scrollTo: "#contact" } });
 
   return (
     <div className="min-h-screen bg-paper text-ink font-body antialiased" data-testid="video-page">
@@ -227,7 +227,7 @@ export default function VideoPage() {
                 <div className="mt-9 flex flex-wrap items-center gap-4">
                   <Magnetic strength={0.2}>
                     <button
-                      onClick={goContact}
+                      onClick={openModal}
                       data-testid="video-hero-cta"
                       className="btn-shine inline-flex items-center gap-2 rounded-full bg-baby px-7 py-3.5 text-base font-bold text-ink transition-[transform,background-color] duration-300 hover:scale-105 hover:bg-baby-dark"
                     >
@@ -321,7 +321,7 @@ export default function VideoPage() {
               {/* CTA tile */}
               <Reveal delay={services.length * 0.06}>
                 <button
-                  onClick={goContact}
+                  onClick={openModal}
                   data-testid="video-service-cta-tile"
                   className="group h-full w-full text-left rounded-2xl bg-ink p-5 text-white transition-all duration-300 hover:-translate-y-1"
                 >
@@ -425,7 +425,7 @@ export default function VideoPage() {
                 <div className="relative mt-9 flex flex-wrap justify-center gap-4">
                   <Magnetic strength={0.2}>
                     <button
-                      onClick={goContact}
+                      onClick={openModal}
                       data-testid="video-bottom-cta"
                       className="btn-shine inline-flex items-center gap-2 rounded-full bg-ink px-8 py-4 text-base font-bold text-white transition-transform duration-300 hover:scale-105"
                     >
