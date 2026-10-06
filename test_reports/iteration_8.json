@@ -1,0 +1,41 @@
+{
+  "summary": "Tested the new Mindmap (Χάρτες Ιδεών) feature end-to-end. Backend: 15/15 pytest tests PASSED covering auth, GET/PUT board upsert, project/client isolation, file upload (image/mp4/pdf kind mapping, 20MB cap -> 413, empty -> 400) and public /api/files/{id}. Frontend: admin login, mindmaps tab (data-testid=admin-tab-mindmaps), picker rendering both 'Πίνακες Έργων' and 'Πίνακες Πελατών', opening project + client boards, toolbar add buttons for note/checklist/link/color, autosave indicator 'Αποθηκεύτηκε', back navigation, and persistence after reload all worked. Pre-seeded note/checklist/color on project board rendered correctly. Regression: all other admin tabs (overview, messages, leads, clients, projects, invoices) still clickable.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "MindMaps BoardCanvas",
+        "issue": "When multiple nodes are added in rapid succession from the toolbar, they are placed with only tiny random jitter around the viewport center, so they stack and overlap. The topmost nodes' nodrag inputs (e.g. color-swatch button) intercept pointer events on the ones beneath, making inner inputs of lower nodes unclickable until the user manually drags nodes apart. Not a functional bug per se, but a UX issue — consider adding a larger offset per added node (e.g. grid-based) or auto-placing new nodes at the next empty slot.",
+        "selector": "[data-testid='mindmap-add-*']",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_mindmap.py",
+    "/app/test_reports/pytest/mindmap_results.xml"
+  ],
+  "action_items": [
+    "Optional UX: offset newly-added nodes in a grid or at a free spot so they don't stack and intercept pointer events (minor polish)."
+  ],
+  "critical_code_review_comments": [
+    "server.py is 1148 lines — approaching the >700 threshold and would benefit from splitting into routers (admin, mindmap, places, agency) in a future refactor.",
+    "Mindmap upload uses `file.filename.rsplit('.',1)` without sanitizing the extension before using it as the storage path suffix; low risk given storage_path isn't user-reflected, but worth basic allowlist/sanitize.",
+    "GET /api/admin/mindmap owner_id has no validation (any string accepted). Fine for current use (admin only), but consider UUID validation to prevent accidental key pollution.",
+    "Admin.jsx is a very large monolith (~1800 lines) mixing Login, Dashboard, Kanban, LeadFinder, Prospects — splitting it would reduce bundle churn and improve maintainability.",
+    "Autosave in BoardCanvas is a straightforward debounced PUT with no retry/backoff — a transient 5xx silently reverts save-state to 'dirty' without surfacing a toast. Consider user-visible retry UI.",
+    "nodes.jsx `useUploader` returns `err` but doesn't surface it on FileNode after the upload button is hidden (data.url set) — minor."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_mindmap.py"
+  ],
+  "success_rate": { "backend": "100%", "frontend": "~95%" },
+  "test_credentials": "Admin password: 180406 (header X-Admin-Token: 180406)",
+  "seed_data_creation": "Created several mindmap boards under TEST_<uuid> owner_ids via PUT (small, harmless). Added one real note 'TEST_ClientBoard_Note' on the seeded client board (Καφέ Αριάδνη, 4c19a87d-4cda-453c-8ff4-8b79b3a58ad9). Uploaded a few tiny TEST_ files to Emergent Object Storage (1x1 PNG, mp4 stub, pdf stub).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend endpoints for mindmap are fully covered by /app/backend/tests/test_mindmap.py (15 tests, all pass). Run with: REACT_APP_BACKEND_URL=<url> pytest backend/tests/test_mindmap.py -o addopts= -v. Frontend custom nodes are inside react-flow; nodes stack on top of each other when added rapidly from toolbar — use playwright `.first` or drag nodes before interacting with inner inputs to avoid overlap-click issues. Pre-existing seeded project board (be3efc1a-...) already has 3 nodes (note/checklist/color).",
+  "rca of the issue": "No critical bugs. One minor UX finding: toolbar additions place nodes with a tiny random offset around canvas center, causing visual + pointer-event stacking when multiple nodes are added without manually dragging them apart."
+}

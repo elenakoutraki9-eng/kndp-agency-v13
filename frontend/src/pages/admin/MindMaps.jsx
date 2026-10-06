@@ -122,17 +122,22 @@ function BoardCanvas({ token, board, onBack }) {
       const screen = rect
         ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
         : { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-      const position = screenToFlowPosition(screen);
-      // small jitter so stacked adds don't perfectly overlap
-      position.x += (Math.random() - 0.5) * 80;
-      position.y += (Math.random() - 0.5) * 80;
-      const node = {
-        id: newNodeId(),
-        type,
-        position,
-        data: { ...NODE_DEFAULTS[type], __token: token },
-      };
-      setNodes((nds) => [...nds, node]);
+      const base = screenToFlowPosition(screen);
+      setNodes((nds) => {
+        // Cascade new nodes diagonally so they never perfectly overlap.
+        const step = nds.length % 8;
+        const position = {
+          x: base.x - 120 + step * 36,
+          y: base.y - 100 + step * 30,
+        };
+        const node = {
+          id: newNodeId(),
+          type,
+          position,
+          data: { ...NODE_DEFAULTS[type], __token: token },
+        };
+        return [...nds, node];
+      });
     },
     [screenToFlowPosition, setNodes, token]
   );
