@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ArrowUpRight, ChevronDown } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { scrollToId } from "@/lib/scroll";
+import { useTransitionNavigate } from "@/components/PageTransition";
 
 // Sections of the home page, shown as a submenu under "Αρχική".
 const homeSections = [
@@ -15,7 +16,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("#hero");
   const [homeMenu, setHomeMenu] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useTransitionNavigate();
   const location = useLocation();
   const onHome = location.pathname === "/";
   const onVideo = location.pathname === "/video";
@@ -51,6 +52,7 @@ export default function Navbar() {
   const goVideo = () => {
     setOpen(false);
     setHomeMenu(false);
+    if (onVideo) return;
     navigate("/video");
   };
 

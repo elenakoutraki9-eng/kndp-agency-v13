@@ -1,7 +1,8 @@
 import { ArrowUpRight, Heart } from "lucide-react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Magnetic } from "@/components/Reveal";
 import { scrollToId } from "@/lib/scroll";
+import { useTransitionNavigate } from "@/components/PageTransition";
 
 const nav = [
   { id: "#hero", label: "Αρχική", slug: "home" },
@@ -12,7 +13,7 @@ const nav = [
 ];
 
 export default function Footer() {
-  const navigate = useNavigate();
+  const navigate = useTransitionNavigate();
   const location = useLocation();
   const onHome = location.pathname === "/";
 
@@ -58,13 +59,13 @@ export default function Footer() {
               {nav.map((n) => (
                 <li key={n.slug}>
                   {n.route ? (
-                    <Link
-                      to={n.route}
+                    <button
+                      onClick={() => navigate(n.route)}
                       data-testid={`footer-link-${n.slug}`}
                       className="text-white/70 hover:text-baby transition-colors duration-300"
                     >
                       {n.label}
-                    </Link>
+                    </button>
                   ) : (
                     <button
                       onClick={() => goSection(n.id)}

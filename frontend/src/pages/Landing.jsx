@@ -29,8 +29,18 @@ export default function Landing() {
     // (e.g. clicked "Επικοινωνία" on /video), scroll there once mounted.
     const target = location.state?.scrollTo || window.location.hash;
     if (!target) return;
-    const t = setTimeout(() => scrollToId(target), 500);
-    return () => clearTimeout(t);
+    // Coming from another page via the transition curtain: jump instantly
+    // while the curtain still covers the screen (no visible scrolling).
+    const fromRoute = !!location.state?.scrollTo;
+    const t = setTimeout(
+      () => scrollToId(target, { immediate: fromRoute }),
+      fromRoute ? 120 : 500
+    );
+    const t2 = fromRoute ? setTimeout(() => scrollToId(target, { immediate: true }), 330) : null;
+    return () => {
+      clearTimeout(t);
+      if (t2) clearTimeout(t2);
+    };
   }, [location.state]);
 
   useEffect(() => {

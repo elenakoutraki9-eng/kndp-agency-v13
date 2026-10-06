@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import "@/App.css";
 import Lenis from "lenis";
 import { Toaster } from "sonner";
-import { useNavigate } from "react-router-dom";
 import {
   Play,
   ArrowUpRight,
@@ -23,6 +22,7 @@ import Cursor from "@/components/Cursor";
 import ScrollProgress from "@/components/ScrollProgress";
 import { WordMask, Reveal, Kicker, Magnetic } from "@/components/Reveal";
 import { setLenis } from "@/lib/scroll";
+import { useTransitionNavigate } from "@/components/PageTransition";
 import useIsMobile from "@/hooks/useIsMobile";
 
 /* Reliable public sample clips used purely as placeholders. Swap these
@@ -166,10 +166,10 @@ const steps = [
 
 export default function VideoPage() {
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
+  const navigate = useTransitionNavigate();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
 
   useEffect(() => {
