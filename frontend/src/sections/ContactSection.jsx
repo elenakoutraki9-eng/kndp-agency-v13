@@ -77,7 +77,7 @@ export default function ContactSection(props) {
 
               <div
                 data-testid="contact-or-divider"
-                className="flex items-center gap-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-ink/40"
+                className="lg:hidden flex items-center gap-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-ink/40"
               >
                 <span className="h-px flex-1 bg-ink/10" />
                 ή
