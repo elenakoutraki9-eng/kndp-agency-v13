@@ -194,3 +194,5 @@ Build the KNDP agency website. Clean, modern startup look; white + baby blue col
 
 - 2026-07 (Nav restructure): Navbar now has TWO main options — "Αρχική" (home, with a hover/tap SUBMENU of home sections: Έργα/Υπηρεσίες/Επικοινωνία, scroll-spy active highlight) and "Βίντεο" (route /video). Desktop: dropdown card on hover (AnimatePresence); mobile: Αρχική expands with nested indented sections, then Βίντεο. Section links navigate home-first via navigate("/",{state:{scrollTo}}) when off-home.
 - 2026-07 (Video showcase revert per visual edit): Removed the Before/After drag slider AND the size-up/full-screen lightbox from the showcase cards (deleted BeforeAfter + VideoLightbox components, reverted ShowcaseCard to plain LoopVideo device frames, reverted hero Showreel badge to static). Showcase cards are back to simple looping muted clips.
+
+- 2026-10 (GitHub re-open): Recreated missing backend/.env (MONGO_URL, DB_NAME, CORS_ORIGINS, ADMIN_PASSWORD, EMERGENT_LLM_KEY) and frontend/.env (REACT_APP_BACKEND_URL); reinstalled deps; services running. GOOGLE_PLACES_API_KEY not set (Places lookup disabled until provided).
