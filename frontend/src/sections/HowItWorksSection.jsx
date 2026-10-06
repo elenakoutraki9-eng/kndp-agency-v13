@@ -98,9 +98,6 @@ export default function HowItWorksSection(props) {
                 <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:rotate-45" />
               </button>
             </Magnetic>
-            <p className="text-sm font-semibold text-white/50">
-              Δωρεάν σχέδιο εντός 48 ωρών — χωρίς δέσμευση.
-            </p>
           </Reveal>
         </div>
       </section>

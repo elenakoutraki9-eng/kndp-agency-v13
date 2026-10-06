@@ -63,8 +63,7 @@ export default function Hero(props) {
             transition={{ duration: 0.8, delay: 0.9 }}
             className="mt-6 max-w-xl text-base md:text-lg leading-relaxed text-ink/60"
           >
-            Από ιστοσελίδες και εφαρμογές έως έξυπνα εργαλεία και αυτοματισμούς,
-            χτίζουμε τις ψηφιακές λύσεις που η επιχείρησή σου χρειάζεται για να αναπτυχθεί.
+            Websites, apps, εργαλεία, αυτοματισμοί — ό,τι χρειαστείς.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -130,7 +129,7 @@ export default function Hero(props) {
                     Δοκίμασέ το τώρα
                   </p>
                   <p className="mt-1.5 font-display font-semibold tracking-tight leading-snug text-sm text-ink">
-                    Γράψε την επιχείρησή σου και δες τι μπορούμε να χτίσουμε για σένα.
+            
                   </p>
                 </motion.div>
               )}

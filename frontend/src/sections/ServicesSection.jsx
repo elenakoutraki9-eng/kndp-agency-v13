@@ -95,11 +95,6 @@ export default function ServicesSection() {
             </h2>
           </Reveal>
 
-          <Reveal delay={0.1} className="mt-10 md:mt-12">
-            <p className="text-xs uppercase tracking-[0.25em] font-semibold text-ink/50">
-              Η πλήρης λίστα — ομαδοποιημένη με βάση τι σημαίνει για εσένα
-            </p>
-          </Reveal>
           <div className="mt-5 space-y-6" data-testid="services-categories">
             {categories.map((cat) => (
               <div key={cat.slug} data-testid={`services-category-${cat.slug}`}>
@@ -120,9 +115,6 @@ export default function ServicesSection() {
                           {s.title}
                         </h4>
                         <p className="mt-1.5 text-sm text-ink/60 leading-relaxed flex-1">{s.text}</p>
-                        <p className="mt-2.5 text-xs font-semibold text-baby-dark/80 uppercase tracking-wide">
-                          {s.who}
-                        </p>
                       </div>
                     </Reveal>
                   ))}
@@ -140,8 +132,7 @@ export default function ServicesSection() {
                   Δεν είσαι σίγουρος τι χρειάζεσαι;
                 </h3>
                 <p className="mt-2 text-sm text-ink/60 max-w-lg leading-relaxed">
-                  Είναι φυσιολογικό. Πες μας το πρόβλημα — θα σου πούμε ειλικρινά
-                  τι απαιτείται για να λυθεί.
+                  Πες μας το πρόβλημα — θα σου πούμε ειλικρινά τι χρειάζεται.
                 </p>
               </div>
               <Magnetic strength={0.25} className="relative shrink-0">
