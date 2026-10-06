@@ -22,7 +22,7 @@ function CompanyCard({ c, i }) {
       className="group relative flex w-[290px] shrink-0 snap-start flex-col rounded-2xl border border-white/10 bg-white/[0.05] p-6 md:w-[320px] md:p-7"
     >
       {/* Logo monogram */}
-      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-baby to-baby-dark font-display text-lg font-bold text-white shadow-lg shadow-baby/40">
+      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-baby to-baby-dark font-display text-lg font-bold text-white">
         {c.mono}
       </div>
 
@@ -142,7 +142,7 @@ export default function CompaniesSection() {
           <SectionHeader />
         </div>
 
-        <div className="relative mt-10 md:mt-14">
+        <div className="relative mt-10 md:mt-14 pb-20 md:pb-28">
           <motion.div
             ref={trackRef}
             style={{ x }}

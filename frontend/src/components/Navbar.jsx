@@ -17,6 +17,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("#hero");
   const [homeMenu, setHomeMenu] = useState(false);
+  const [dark, setDark] = useState(false);
   const navigate = useTransitionNavigate();
   const location = useLocation();
   const { openModal } = useContactModal();
@@ -37,6 +38,19 @@ export default function Navbar() {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
+  }, [onHome]);
+
+  // Dark navbar while the companies section is visible.
+  useEffect(() => {
+    if (!onHome) { setDark(false); return; }
+    const el = document.querySelector("#companies");
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => setDark(e.isIntersecting),
+      { threshold: 0 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
   }, [onHome]);
 
   // Scroll to a section on the home page (navigating home first if needed).
@@ -61,13 +75,17 @@ export default function Navbar() {
   return (
     <header
       data-testid="site-navbar"
-      className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-md border-b border-white/40"
+      className={`fixed top-0 left-0 right-0 z-50 border-b transition-[background-color,border-color] duration-500 ${
+        dark
+          ? "bg-ink/95 border-white/10 backdrop-blur-md"
+          : "bg-white/70 border-white/40 backdrop-blur-md"
+      }`}
     >
       <div className="mx-auto max-w-7xl px-6 md:px-10 h-20 flex items-center justify-between">
         <button
           onClick={() => goSection("#hero")}
           data-testid="nav-logo"
-          className="font-display font-bold text-2xl tracking-tighter flex items-center gap-1"
+          className={`font-display font-bold text-2xl tracking-tighter flex items-center gap-1 transition-colors duration-500 ${dark ? "text-white" : "text-ink"}`}
         >
           KNDP
           <span data-scroll-waypoint="logo-start" className="h-2.5 w-2.5 rounded-full bg-baby translate-y-1" />
@@ -83,8 +101,10 @@ export default function Navbar() {
             <button
               onClick={() => goSection("#hero")}
               data-testid="nav-link-home"
-              className={`nav-underline relative inline-flex items-center gap-1 text-sm font-semibold transition-colors duration-300 hover:text-ink ${
-                onHome ? "text-ink" : "text-ink/50"
+              className={`nav-underline relative inline-flex items-center gap-1 text-sm font-semibold transition-colors duration-300 ${
+                dark
+                  ? "text-white/80 hover:text-white"
+                  : onHome ? "text-ink hover:text-ink" : "text-ink/50 hover:text-ink"
               }`}
             >
               Αρχική
@@ -138,9 +158,11 @@ export default function Navbar() {
           <button
             onClick={goVideo}
             data-testid="nav-link-video"
-            className={`nav-underline relative text-sm font-semibold transition-colors duration-300 hover:text-ink ${
-              onVideo ? "text-ink" : "text-ink/50"
-            }`}
+            className={`nav-underline relative text-sm font-semibold transition-colors duration-300 ${
+                dark
+                  ? "text-white/80 hover:text-white"
+                  : onVideo ? "text-ink hover:text-ink" : "text-ink/50 hover:text-ink"
+              }`}
           >
             Βίντεο
             {onVideo && (
@@ -164,7 +186,9 @@ export default function Navbar() {
           <button
             data-testid="mobile-menu-button"
             onClick={() => setOpen(!open)}
-            className="md:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 bg-white"
+            className={`md:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-500 ${
+              dark ? "border-white/20 bg-white/10 text-white" : "border-ink/10 bg-white text-ink"
+            }`}
             aria-label="Εναλλαγή μενού"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
