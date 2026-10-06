@@ -4,7 +4,6 @@ import { motion, useMotionValue } from "framer-motion";
 export default function Cursor() {
   const [enabled, setEnabled] = useState(false);
   const [hovering, setHovering] = useState(false);
-  const [onText, setOnText] = useState(false);
   const [down, setDown] = useState(false);
   // Position tracked directly (no spring) so the dot sits exactly on the
   // pointer — no trailing / follow-up lag.
@@ -25,12 +24,8 @@ export default function Cursor() {
       x.set(e.clientX);
       y.set(e.clientY);
     };
-    const over = (e) => {
-      const isText = !!e.target.closest("input,textarea,select");
-      const isInteractive = !!e.target.closest("a,button,input,textarea,select,[data-cursor]");
-      setOnText(isText);
-      setHovering(isInteractive);
-    };
+    const over = (e) =>
+      setHovering(!!e.target.closest("a,button,input,textarea,select,[data-cursor]"));
     const onDown = () => setDown(true);
     const onUp = () => setDown(false);
 
@@ -58,7 +53,7 @@ export default function Cursor() {
     >
       {/* Small blue dot, matching the accent dot next to the KNDP logo */}
       <motion.span
-        animate={{ scale: down ? 0.7 : onText ? 1.22 : hovering ? 2.6 : 1 }}
+        animate={{ scale: down ? 0.7 : hovering ? 1.22 : 1 }}
         transition={{ type: "spring", stiffness: 650, damping: 28, mass: 0.3 }}
         className="block h-3 w-3 -ml-1.5 -mt-1.5 rounded-full bg-baby shadow-[0_0_14px_rgba(120,170,255,0.75)]"
       />
