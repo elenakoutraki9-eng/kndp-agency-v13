@@ -1,0 +1,22 @@
+{
+  "summary": "Verified branded page-transition curtain fix for KNDP site. Desktop (1920x800) & mobile (390x844) tested. No visible scroll-up to hero before route change: scrollY remained at 3000 throughout 'cover' phase then dropped to 0 while curtain still covered the screen, landed on /video with scrollY=0. Curtain + KNDP logo visible mid-transition. Overlay pointer-events=none after idle, no click blocking. video-hero-cta and footer-link-video play the transition and land on correct target (contact section bounding top ~68px due to 76px offset). In-home section link (nav-link-services on '/') remained idle (no curtain) — smooth-scroll preserved. Clicking Βίντεο on /video is a no-op (phase stays idle). Rapid double-click ends idle on /video. Mobile menu closed after navigation; no horizontal overflow. Zero console errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "PageTransition.go uses a ref-based busy guard — correct, prevents double-fire; verified rapid double-click behavior.",
+    "Landing.jsx schedules two scrollToId immediate calls (120ms + 330ms) behind the curtain to compensate for late layout; works but is slightly fragile — if curtain HOLD_MS/COVER change, the 330ms safety call could fire after reveal starts. Consider deriving timing from the transition constants.",
+    "scrollToId immediate branch toggles html.scrollBehavior but Lenis instance on home may still be active; current logic calls lenis.scrollTo immediate+force which is fine. OK."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Frontend-only test. Backend untouched. Transition flows (nav, footer, CTA, mobile) all verified via Playwright. H.264 videos won't decode in headless chromium — posters only, expected."
+}
