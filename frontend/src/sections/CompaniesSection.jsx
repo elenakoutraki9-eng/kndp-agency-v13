@@ -100,8 +100,8 @@ export default function CompaniesSection() {
         className="relative bg-ink py-16 overflow-hidden grain"
       >
         {/* Smooth top & bottom transitions */}
-        <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 h-20 bg-gradient-to-b from-paper to-transparent" />
-        <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-20 bg-gradient-to-t from-paper to-transparent" />
+        <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 h-12 bg-gradient-to-b from-paper via-paper/50 to-transparent" />
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-12 bg-gradient-to-t from-paper via-paper/50 to-transparent" />
 
         {/* Decorative glow blobs */}
         <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-baby/10 blur-3xl" />
@@ -129,8 +129,8 @@ export default function CompaniesSection() {
       style={{ height: `calc(100vh + ${distance}px)` }}
     >
       {/* Smooth top & bottom transitions — fades in/out of adjacent white sections */}
-      <div className="pointer-events-none absolute top-0 left-0 right-0 z-20 h-28 bg-gradient-to-b from-paper to-transparent" />
-      <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 h-28 bg-gradient-to-t from-paper to-transparent" />
+      <div className="pointer-events-none absolute top-0 left-0 right-0 z-20 h-16 bg-gradient-to-b from-paper via-paper/50 to-transparent" />
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 h-16 bg-gradient-to-t from-paper via-paper/50 to-transparent" />
 
       {/* Decorative glow blobs */}
       <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-baby/8 blur-3xl" />
