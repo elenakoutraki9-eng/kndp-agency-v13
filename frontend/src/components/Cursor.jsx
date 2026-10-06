@@ -58,7 +58,7 @@ export default function Cursor() {
     >
       {/* Small blue dot, matching the accent dot next to the KNDP logo */}
       <motion.span
-        animate={{ scale: down ? 0.7 : onText ? 1.4 : hovering ? 2.6 : 1 }}
+        animate={{ scale: down ? 0.7 : onText ? 1.15 : hovering ? 2.6 : 1 }}
         transition={{ type: "spring", stiffness: 650, damping: 28, mass: 0.3 }}
         className="block h-3 w-3 -ml-1.5 -mt-1.5 rounded-full bg-baby shadow-[0_0_14px_rgba(120,170,255,0.75)]"
       />
