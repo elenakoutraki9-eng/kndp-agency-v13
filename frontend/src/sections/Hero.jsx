@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
-import { ArrowUpRight, ArrowDown, MousePointerClick } from "lucide-react";
+import { ArrowUpRight, MousePointerClick } from "lucide-react";
 import { Kicker, WordMask, Magnetic } from "@/components/Reveal";
 import HeroBackground, { useMouseParallax } from "@/components/HeroBackground";
 import ChatDesktop from "@/components/ChatDesktop";
@@ -139,17 +139,6 @@ export default function Hero(props) {
         </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.6 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden lg:flex flex-col items-center gap-2 text-ink/40"
-      >
-        <span className="text-[10px] uppercase tracking-[0.3em] font-semibold">Κύλιση</span>
-        <motion.span animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.8 }}>
-          <ArrowDown className="h-4 w-4" />
-        </motion.span>
-      </motion.div>
       </section>
     </StackPanel>
   );
