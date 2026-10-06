@@ -52,9 +52,9 @@ export default function Hero(props) {
             data-testid="hero-headline"
             className="mt-5 font-display font-bold tracking-tighter leading-[0.95] text-5xl sm:text-6xl lg:text-6xl"
           >
-            <WordMask text="Χτίζουμε" delay={0.2} className="block" />
-            <WordMask text="Ό,τι" accent={["Ό,τι"]} delay={0.4} className="block" />
-            <WordMask text="Χρειάζεσαι." delay={0.6} className="block" />
+            <WordMask text="Χτίζουμε τα πάντα." delay={0.2} className="block" />
+            <WordMask text="Κυριολεκτικά," delay={0.4} className="block" />
+            <WordMask text="τα πάντα." accent={["τα", "πάντα."]} delay={0.6} className="block" />
           </h1>
           <motion.p
             data-testid="hero-subheading"
