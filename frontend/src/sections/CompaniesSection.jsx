@@ -137,7 +137,7 @@ export default function CompaniesSection() {
       <div className="pointer-events-none absolute top-1/2 right-0 h-[400px] w-[400px] -translate-y-1/2 rounded-full bg-baby/6 blur-3xl" />
       <div className="pointer-events-none absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-baby/5 blur-3xl" />
 
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
+      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden pt-20 md:pt-24">
         <div className="relative mx-auto w-full max-w-7xl px-6 md:px-10 pt-16 md:pt-20">
           <SectionHeader />
         </div>
