@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends, UploadFile, File, Query, Response
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -28,6 +28,59 @@ EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 GOOGLE_PLACES_API_KEY = os.environ.get('GOOGLE_PLACES_API_KEY')
 PLACES_BASE = "https://places.googleapis.com/v1"
 PLACES_DETAILS_MASK = "id,displayName,formattedAddress,nationalPhoneNumber,internationalPhoneNumber,websiteUri,rating,googleMapsUri"
+
+# --- Emergent Object Storage ---
+STORAGE_BASE = (os.environ.get("INTEGRATION_PROXY_URL") or "").strip() or "https://integrations.emergentagent.com"
+STORAGE_URL = STORAGE_BASE.rstrip("/") + "/objstore/api/v1/storage"
+STORAGE_APP = "kndp"
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024  # 20MB per file
+_storage_key: Optional[str] = None
+
+
+async def _storage_init(force: bool = False) -> str:
+    global _storage_key
+    if _storage_key and not force:
+        return _storage_key
+    async with httpx.AsyncClient(timeout=30.0) as c:
+        resp = await c.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_LLM_KEY})
+        resp.raise_for_status()
+        _storage_key = resp.json()["storage_key"]
+    return _storage_key
+
+
+async def _storage_put(path: str, data: bytes, content_type: str) -> dict:
+    key = await _storage_init()
+    async with httpx.AsyncClient(timeout=180.0) as c:
+        url = f"{STORAGE_URL}/objects/{path}"
+        headers = {"X-Storage-Key": key, "Content-Type": content_type}
+        resp = await c.put(url, headers=headers, content=data)
+        if resp.status_code == 404:
+            key = await _storage_init(force=True)
+            headers["X-Storage-Key"] = key
+            resp = await c.put(url, headers=headers, content=data)
+        resp.raise_for_status()
+        return resp.json()
+
+
+async def _storage_get(path: str) -> tuple:
+    key = await _storage_init()
+    async with httpx.AsyncClient(timeout=120.0) as c:
+        url = f"{STORAGE_URL}/objects/{path}"
+        resp = await c.get(url, headers={"X-Storage-Key": key})
+        if resp.status_code == 404:
+            key = await _storage_init(force=True)
+            resp = await c.get(url, headers={"X-Storage-Key": key})
+        resp.raise_for_status()
+        return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
+
+
+def _file_kind(content_type: str) -> str:
+    ct = (content_type or "").lower()
+    if ct.startswith("image/"):
+        return "image"
+    if ct.startswith("video/"):
+        return "video"
+    return "file"
 
 # Categories KNDP can build for a business (Greek labels shown to the user).
 IDEA_CATEGORIES = [
@@ -948,6 +1001,121 @@ async def admin_overview(_: bool = Depends(verify_admin)):
     }
 
 
+# ============================================================
+# MINDMAP BOARDS + FILE UPLOADS
+# ============================================================
+# A board belongs either to a project or a client. Nodes/edges are stored
+# verbatim from the frontend canvas (freeform react-flow graph).
+
+OWNER_TYPES = ("project", "client")
+
+
+class BoardSave(BaseModel):
+    owner_type: str
+    owner_id: str
+    nodes: List[dict] = []
+    edges: List[dict] = []
+
+
+class UploadedFile(BaseModel):
+    id: str
+    name: str
+    content_type: str
+    size: int
+    kind: str
+    url: str
+
+
+def _board_filter(owner_type: str, owner_id: str) -> dict:
+    return {"owner_type": owner_type, "owner_id": owner_id}
+
+
+@api_router.get("/admin/mindmap")
+async def get_board(owner_type: str, owner_id: str, _: bool = Depends(verify_admin)):
+    if owner_type not in OWNER_TYPES:
+        raise HTTPException(status_code=400, detail="Μη έγκυρος τύπος πίνακα")
+    doc = await db.mindmaps.find_one(_board_filter(owner_type, owner_id), {"_id": 0})
+    if not doc:
+        return {"owner_type": owner_type, "owner_id": owner_id, "nodes": [], "edges": []}
+    return {
+        "owner_type": owner_type,
+        "owner_id": owner_id,
+        "nodes": doc.get("nodes", []),
+        "edges": doc.get("edges", []),
+    }
+
+
+@api_router.put("/admin/mindmap")
+async def save_board(body: BoardSave, _: bool = Depends(verify_admin)):
+    if body.owner_type not in OWNER_TYPES:
+        raise HTTPException(status_code=400, detail="Μη έγκυρος τύπος πίνακα")
+    await db.mindmaps.update_one(
+        _board_filter(body.owner_type, body.owner_id),
+        {"$set": {
+            "owner_type": body.owner_type,
+            "owner_id": body.owner_id,
+            "nodes": body.nodes,
+            "edges": body.edges,
+            "updated_at": _now_iso(),
+        }},
+        upsert=True,
+    )
+    return {"saved": True, "updated_at": _now_iso()}
+
+
+@api_router.post("/admin/mindmap/upload", response_model=UploadedFile)
+async def upload_mindmap_file(file: UploadFile = File(...), _: bool = Depends(verify_admin)):
+    data = await file.read()
+    if len(data) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="Το αρχείο ξεπερνά το όριο των 20MB")
+    if len(data) == 0:
+        raise HTTPException(status_code=400, detail="Κενό αρχείο")
+    file_id = str(uuid.uuid4())
+    ext = file.filename.rsplit(".", 1)[-1].lower() if file.filename and "." in file.filename else "bin"
+    content_type = file.content_type or "application/octet-stream"
+    path = f"{STORAGE_APP}/mindmap/{file_id}.{ext}"
+    try:
+        result = await _storage_put(path, data, content_type)
+    except Exception as exc:  # noqa: BLE001
+        logging.getLogger(__name__).exception("Storage upload failed")
+        raise HTTPException(status_code=502, detail="Η μεταφόρτωση απέτυχε. Δοκίμασε ξανά.") from exc
+    record = {
+        "id": file_id,
+        "storage_path": result.get("path", path),
+        "original_filename": file.filename or f"{file_id}.{ext}",
+        "content_type": content_type,
+        "size": result.get("size", len(data)),
+        "kind": _file_kind(content_type),
+        "is_deleted": False,
+        "created_at": _now_iso(),
+    }
+    await db.files.insert_one(dict(record))
+    return UploadedFile(
+        id=file_id,
+        name=record["original_filename"],
+        content_type=content_type,
+        size=record["size"],
+        kind=record["kind"],
+        url=f"/api/files/{file_id}",
+    )
+
+
+@api_router.get("/files/{file_id}")
+async def serve_file(file_id: str, download: Optional[int] = Query(default=None)):
+    record = await db.files.find_one({"id": file_id, "is_deleted": {"$ne": True}}, {"_id": 0})
+    if not record:
+        raise HTTPException(status_code=404, detail="File not found")
+    try:
+        data, content_type = await _storage_get(record["storage_path"])
+    except Exception as exc:  # noqa: BLE001
+        logging.getLogger(__name__).exception("Storage fetch failed")
+        raise HTTPException(status_code=502, detail="Could not load file") from exc
+    headers = {"Cache-Control": "public, max-age=31536000", "Accept-Ranges": "bytes"}
+    if download:
+        headers["Content-Disposition"] = f'attachment; filename="{record.get("original_filename", file_id)}"'
+    return Response(content=data, media_type=record.get("content_type", content_type), headers=headers)
+
+
 app.include_router(api_router)
 
 app.add_middleware(
@@ -963,6 +1131,15 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+
+@app.on_event("startup")
+async def _init_storage_on_startup():
+    try:
+        await _storage_init()
+        logger.info("Object storage initialized")
+    except Exception as exc:  # noqa: BLE001
+        logger.error(f"Storage init failed: {exc}")
 
 
 @app.on_event("shutdown")

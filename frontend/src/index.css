@@ -137,3 +137,30 @@
     transition: none !important;
   }
 }
+
+/* ---- Mindmap canvas (react-flow) ---- */
+.react-flow .mm-handle {
+  width: 10px;
+  height: 10px;
+  background: #ffffff;
+  border: 2px solid #4FB3E3;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.react-flow__node:hover .mm-handle,
+.react-flow__node.selected .mm-handle {
+  opacity: 1;
+}
+.react-flow__handle.mm-handle:hover {
+  background: #4FB3E3;
+}
+.react-flow__node {
+  font-family: inherit;
+}
+.react-flow__edge-path {
+  cursor: pointer;
+}
+.react-flow__attribution {
+  display: none;
+}
+

@@ -6,6 +6,7 @@ import Overview from "./admin/Overview";
 import Clients from "./admin/Clients";
 import Projects from "./admin/Projects";
 import Invoices from "./admin/Invoices";
+import MindMaps from "./admin/MindMaps";
 import {
   Lock,
   ArrowLeft,
@@ -32,6 +33,7 @@ import {
   FolderKanban,
   Receipt,
   UserPlus,
+  Network,
 } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -1573,6 +1575,13 @@ function Dashboard({ token, onLogout }) {
               onClick={() => setActiveTab("invoices")}
               testid="admin-tab-invoices"
             />
+            <SidebarButton
+              icon={Network}
+              label="Χάρτες Ιδεών"
+              active={activeTab === "mindmaps"}
+              onClick={() => setActiveTab("mindmaps")}
+              testid="admin-tab-mindmaps"
+            />
           </div>
           <div className="mt-auto flex flex-col gap-1.5 pt-4 border-t border-ink/8">
             <button onClick={load} data-testid="admin-refresh-button" className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-bold text-ink/55 transition-colors hover:bg-mist hover:text-ink">
@@ -1613,6 +1622,7 @@ function Dashboard({ token, onLogout }) {
                 ["clients", "Πελάτες"],
                 ["projects", "Έργα"],
                 ["invoices", "Τιμολόγια"],
+                ["mindmaps", "Χάρτες Ιδεών"],
               ].map(([key, label]) => (
                 <button
                   key={key}
@@ -1637,6 +1647,8 @@ function Dashboard({ token, onLogout }) {
           <Projects token={token} />
         ) : activeTab === "invoices" ? (
           <Invoices token={token} />
+        ) : activeTab === "mindmaps" ? (
+          <MindMaps token={token} />
         ) : activeTab === "finder" ? (
           <div>
             <LeadFinder token={token} onLeadsChanged={load} />
