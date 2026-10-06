@@ -1,7 +1,7 @@
 import { useRef, useState, useLayoutEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
-import { WordMask, Reveal, Kicker } from "@/components/Reveal";
+import { ArrowRight } from "lucide-react";
+import { WordMask, Reveal } from "@/components/Reveal";
 import useIsMobile from "@/hooks/useIsMobile";
 
 // Placeholder companies — swap names / add real logos later.
@@ -46,14 +46,6 @@ function CompanyCard({ c, i }) {
 function SectionHeader() {
   return (
     <Reveal>
-      {/* Stat badge */}
-      <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-baby/30 bg-baby/10 px-4 py-1.5">
-        <Sparkles className="h-3.5 w-3.5 text-baby" />
-        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-baby">
-          {companies.length}+ επιχειρήσεις εμπιστεύτηκαν την KNDP
-        </span>
-      </div>
-
       <h2
         data-testid="companies-headline"
         className="font-display font-bold tracking-tighter text-4xl md:text-6xl text-white leading-[0.95]"
@@ -112,6 +104,10 @@ export default function CompaniesSection() {
         data-testid="companies-section"
         className="relative bg-ink py-16 overflow-hidden grain"
       >
+        {/* Smooth top & bottom transitions */}
+        <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 h-20 bg-gradient-to-b from-paper to-transparent" />
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-20 bg-gradient-to-t from-paper to-transparent" />
+
         {/* Decorative glow blobs */}
         <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-baby/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-baby/8 blur-3xl" />
@@ -137,6 +133,10 @@ export default function CompaniesSection() {
       className="relative bg-ink grain"
       style={{ height: `calc(100vh + ${distance}px)` }}
     >
+      {/* Smooth top & bottom transitions — fades in/out of adjacent white sections */}
+      <div className="pointer-events-none absolute top-0 left-0 right-0 z-20 h-28 bg-gradient-to-b from-paper to-transparent" />
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 h-28 bg-gradient-to-t from-paper to-transparent" />
+
       {/* Decorative glow blobs */}
       <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-baby/8 blur-3xl" />
       <div className="pointer-events-none absolute top-1/2 right-0 h-[400px] w-[400px] -translate-y-1/2 rounded-full bg-baby/6 blur-3xl" />
