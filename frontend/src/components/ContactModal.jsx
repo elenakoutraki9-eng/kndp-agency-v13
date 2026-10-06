@@ -69,9 +69,9 @@ export default function ContactModal() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          {/* Backdrop */}
+          {/* Backdrop — no backdrop-blur, it forces GPU re-composite on every cursor move */}
           <motion.div
-            className="absolute inset-0 bg-ink/60 backdrop-blur-md"
+            className="absolute inset-0 bg-ink/70"
             onClick={closeModal}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
